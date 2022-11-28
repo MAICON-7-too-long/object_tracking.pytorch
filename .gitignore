@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+# For deep learning
+checkpoints/
+debug/
+infer_res/
