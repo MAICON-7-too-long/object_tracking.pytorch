@@ -133,3 +133,4 @@ dmypy.json
 checkpoints/
 debug/
 infer_res/
+exps/
