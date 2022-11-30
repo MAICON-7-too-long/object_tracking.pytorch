@@ -1,4 +1,3 @@
 # /bin/bash
 
-python train.py ${CONFIG_FILE}
-
+python train.py ./mmtracking/configs/mot/bytetrack/bytetrack_yolox_x_8xb4-80e_maicon-ir-cocovidhalftrain_test-mot17halfval.py

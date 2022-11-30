@@ -1,10 +1,17 @@
-# Copyright (c) OpenMMLab. All rights reserved.
+# https://mmtracking.readthedocs.io/en/latest/quick_run.html#run-with-customized-datasets-and-models
+# https://github.com/open-mmlab/mmtracking/blob/master/demo/demo_mot_vis.py
+# https://github.com/open-mmlab/mmtracking/tree/master/tools
+
+import torch
+import numpy as np
+
 import argparse
 import logging
 import os
 import os.path as osp
 import uuid
-import datetime
+from datetime import datetime
+import random
 
 from mmengine.config import Config, DictAction
 from mmengine.logging import print_log
@@ -77,50 +84,51 @@ def main():
     cfg.randomness = dict(seed=RANDOM_SEED, deterministic=True)
     cfg.gpu_ids = range(1)
 
-    cfg.default_hooks.append(
-        dict(
-            type='MMDetWandbHook',
-            init_kwargs={
-                'project': 'maicon-object-tracking',
-                'name': f'{args.config}_{datetime.now().strftime("%m_%d-%H_%M_%S")}',
-                'save_code': True,
-                'group': 'object-tracking',
-                'job_type': 'train',
-                'resume': 'auto',
-                'config': {
-                    'dataset_type': cfg.dataset_type,
-                    'data_root': cfg.data_root,
-                    'train_pipeline': cfg.train_pipeline,
-                    'test_pipeline': cfg.test_pipeline,
-                    'train_dataloader': cfg.train_dataloader,
-                    'val_dataloader': cfg.val_dataloader,
-                    'test_dataloader': cfg.test_dataloader,
-                    'model': cfg.model,
-                    'train_cfg': cfg.train_cfg,
-                    'val_cfg': cfg.val_cfg,
-                    'test_cfg': cfg.test_cfg,
-                    'param_scheduler': cfg.param_scheduler,
-                    'optim_wrapper': cfg.optim_wrapper,
-                    'randomness': cfg.randomness
-                },
-                'tags': [cfg.dataset_type, cfg.data_root, cfg.model.type, cfg.model.backbone.type, cfg.train_cfg.max_epochs, cfg.optim_wrapper.optimizer.type],
-                'id': args.unique_id
-            },
-            interval=10,
-            log_checkpoint=True,
-            log_checkpoint_metadata=True,
-            num_eval_images=100,
-            bbox_score_thr=0.3
-        )
-    )
+    # cfg.custom_hooks = [
+    #     dict(
+    #         _scope_='mmdet',
+    #         type='MMDetWandbHook',
+    #         init_kwargs={
+    #             'project': 'maicon-object-tracking',
+    #             'name': f'{args.config}_{datetime.now().strftime("%m_%d-%H_%M_%S")}',
+    #             'save_code': True,
+    #             'group': 'object-tracking',
+    #             'job_type': 'train',
+    #             'resume': 'auto',
+    #             'config': {
+    #                 'dataset_type': cfg.dataset_type,
+    #                 'data_root': cfg.data_root,
+    #                 'train_pipeline': cfg.train_pipeline,
+    #                 'test_pipeline': cfg.test_pipeline,
+    #                 'train_dataloader': cfg.train_dataloader,
+    #                 'val_dataloader': cfg.val_dataloader,
+    #                 'test_dataloader': cfg.test_dataloader,
+    #                 'model': cfg.model,
+    #                 'train_cfg': cfg.train_cfg,
+    #                 'val_cfg': cfg.val_cfg,
+    #                 'test_cfg': cfg.test_cfg,
+    #                 'param_scheduler': cfg.param_scheduler,
+    #                 'optim_wrapper': cfg.optim_wrapper,
+    #                 'randomness': cfg.randomness
+    #             },
+    #             'tags': [cfg.dataset_type, cfg.data_root, cfg.model.type, cfg.model.detector.backbone.type, cfg.train_cfg.max_epochs, cfg.optim_wrapper.optimizer.type],
+    #             'id': args.unique_id
+    #         },
+    #         interval=10,
+    #         log_checkpoint=True,
+    #         log_checkpoint_metadata=True,
+    #         num_eval_images=100,
+    #         bbox_score_thr=0.3
+    #     )
+    # ]
 
     # Remove randomness
-    # torch.cuda.manual_seed(RANDOM_SEED)
-    # torch.manual_seed(RANDOM_SEED)
-    # np.random.seed(RANDOM_SEED)
-    # random.seed(RANDOM_SEED)
-    # torch.backends.cudnn.deterministic=True
-    # torch.backends.cudnn.benchmark=False
+    torch.cuda.manual_seed(RANDOM_SEED)
+    torch.manual_seed(RANDOM_SEED)
+    np.random.seed(RANDOM_SEED)
+    random.seed(RANDOM_SEED)
+    torch.backends.cudnn.deterministic=True
+    torch.backends.cudnn.benchmark=False
 
     # work_dir is determined in this priority: CLI > segment in file > filename
     if args.work_dir is not None:
