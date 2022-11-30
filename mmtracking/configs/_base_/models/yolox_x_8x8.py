@@ -5,13 +5,14 @@ model = dict(
     data_preprocessor=dict(
         type='TrackDataPreprocessor',
         pad_size_divisor=32,
-        batch_augments=[
-            dict(
-                type='mmdet.BatchSyncRandomResize',
-                random_size_range=(480, 800),
-                size_divisor=32,
-                interval=10)
-        ]),
+        # batch_augments=[
+        #     dict(
+        #         type='mmdet.BatchSyncRandomResize',
+        #         random_size_range=(480, 800),
+        #         size_divisor=32,
+        #         interval=10)
+        # ]
+        ),
     detector=dict(
         _scope_='mmdet',
         type='YOLOX',

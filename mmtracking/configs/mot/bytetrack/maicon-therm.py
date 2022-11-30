@@ -1,14 +1,15 @@
+# bytetrack_yolox_x_8xb4-80e_maicon-therm-cocovidhalftrain_test-mot17halfval
+
 _base_ = [
     '../../_base_/models/yolox_x_8x8.py',
     '../../_base_/datasets/maicon_challenge.py', '../../_base_/default_runtime.py'
 ]
 
-dataset_type = 'mmdet.CocoDataset'
-data_root = '/workspace/data/01_data_ir'
+dataset_type = 'BaseVideoDataset'
+data_root = 'C:/work/01_data_therm'
 
-img_scale = (540, 960)
+img_scale = (512, 640)
 batch_size = 4
-
 auto_scale_lr = dict(enable=True, base_batch_size=4)
 
 model = dict(
@@ -42,8 +43,6 @@ model = dict(
         num_frames_retain=30))
 
 train_pipeline = [
-    # dict(type='LoadImageFromFile'),
-    # dict(type='LoadTrackAnnotations'),
     # dict(
     #     type='mmdet.Mosaic',
     #     img_scale=img_scale,
@@ -133,7 +132,7 @@ train_dataloader = dict(
     #                     dict(type='LoadTrackAnnotations'),
     #                 ]),
     #         ]),
-    #     pipeline=train_pipeline)
+        # pipeline=train_pipeline)
     dataset=dict(
         type=dataset_type,
         data_root=data_root,

@@ -135,5 +135,6 @@ debug/
 infer_res/
 exps/
 work_dir/
+work_dirs/
 data/
 pretrained/

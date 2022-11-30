@@ -1,13 +1,16 @@
+# bytetrack_yolox_x_8xb4-80e_maicon-ir-cocovidhalftrain_test-mot17halfval
+
 _base_ = [
     '../../_base_/models/yolox_x_8x8.py',
     '../../_base_/datasets/maicon_challenge.py', '../../_base_/default_runtime.py'
 ]
 
-dataset_type = 'mmdet.CocoDataset'
-data_root = '/workspace/data/01_data_therm'
+dataset_type = 'BaseVideoDataset'
+data_root = 'C:/work/01_data_ir/'
 
-img_scale = (512, 640)
+img_scale = (540, 960)
 batch_size = 4
+
 auto_scale_lr = dict(enable=True, base_batch_size=4)
 
 model = dict(
@@ -26,11 +29,12 @@ model = dict(
         _scope_='mmdet',
         bbox_head=dict(num_classes=1),
         test_cfg=dict(score_thr=0.01, nms=dict(type='nms', iou_threshold=0.7)),
-        init_cfg=dict(
-            type='Pretrained',
-            checkpoint=  # noqa: E251
-            'https://download.openmmlab.com/mmdetection/v2.0/yolox/yolox_x_8x8_300e_coco/yolox_x_8x8_300e_coco_20211126_140254-1ef88d67.pth'  # noqa: E501
-        )),
+        # init_cfg=dict(
+        #     type='Pretrained',
+        #     checkpoint=  # noqa: E251
+        #     'https://download.openmmlab.com/mmdetection/v2.0/yolox/yolox_x_8x8_300e_coco/yolox_x_8x8_300e_coco_20211126_140254-1ef88d67.pth'  # noqa: E501
+        # )
+        ),
     motion=dict(type='KalmanFilter'),
     tracker=dict(
         type='ByteTracker',
@@ -41,6 +45,8 @@ model = dict(
         num_frames_retain=30))
 
 train_pipeline = [
+    dict(type='LoadImageFromFile'),
+    # dict(type='LoadTrackAnnotations'),
     # dict(
     #     type='mmdet.Mosaic',
     #     img_scale=img_scale,
@@ -130,7 +136,7 @@ train_dataloader = dict(
     #                     dict(type='LoadTrackAnnotations'),
     #                 ]),
     #         ]),
-        # pipeline=train_pipeline)
+    #     pipeline=train_pipeline)
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
@@ -165,6 +171,7 @@ val_dataloader = dict(
         data_root=data_root,
         ann_file='annotations/half-val_cocoformat.json',
         data_prefix=dict(img='train'),
+        metainfo=dict(CLASSES=('pedestrian')),
         # ref_img_sampler=None,
         # load_as_video=True,
         test_mode=True,
@@ -172,7 +179,6 @@ val_dataloader = dict(
     )
 test_dataloader = val_dataloader
 # optimizer
-# default 8 gpu
 # lr = 0.001 / 8 * batch_size
 lr = 0.001 * batch_size
 
@@ -193,6 +199,7 @@ train_cfg = dict(
     type='EpochBasedTrainLoop', max_epochs=total_epochs, val_interval=1)
 val_cfg = dict(type='ValLoop')
 test_cfg = dict(type='TestLoop')
+
 # learning policy
 param_scheduler = [
     dict(

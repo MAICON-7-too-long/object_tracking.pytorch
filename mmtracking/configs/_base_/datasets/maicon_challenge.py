@@ -1,6 +1,6 @@
 # dataset settings
-dataset_type = 'mmdet.CocoDataset'
-data_root = '/workspace/data/01_data_mmtrack'
+dataset_type = 'MOTChallengeDataset'
+data_root = 'C:/work/01_data_ir/'
 
 # data pipeline
 train_pipeline = [
@@ -33,14 +33,14 @@ train_pipeline = [
         transforms=[
             dict(type='mmdet.RandomFlip', prob=0.5),
         ]),
-    # dict(type='PackTrackInputs', ref_prefix='ref', num_key_frames=1)
+    dict(type='PackTrackInputs', ref_prefix='ref', num_key_frames=1)
 ]
 
 test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadTrackAnnotations', with_instance_id=True),
     dict(type='mmdet.Resize', scale=(1088, 1088), keep_ratio=True),
-    # dict(type='PackTrackInputs', pack_single_img=True)
+    dict(type='PackTrackInputs', pack_single_img=True)
 ]
 
 # dataloader
@@ -53,29 +53,30 @@ train_dataloader = dict(
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        # visibility_thr=-1,
+        visibility_thr=-1,
         ann_file='annotations/half-train_cocoformat.json',
-        data_prefix=dict(img='train'),
-        metainfo=dict(CLASSES=('pedestrian')),
-        # ref_img_sampler=dict(
-        #     num_ref_imgs=1,
-        #     frame_range=10,
-        #     filter_key_img=True,
-        #     method='uniform'),
+        data_prefix=dict(img_path='train'),
+        metainfo=dict(CLASSES=('pedestrian', )),
+        ref_img_sampler=dict(
+            num_ref_imgs=1,
+            frame_range=10,
+            filter_key_img=True,
+            method='uniform'),
         pipeline=train_pipeline))
+
 val_dataloader = dict(
     batch_size=1,
     num_workers=2,
     persistent_workers=True,
     drop_last=False,
-    sampler=dict(type='DefaultSampler', shuffle=False),
+    sampler=dict(type='VideoSampler'),
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
         ann_file='annotations/half-val_cocoformat.json',
-        data_prefix=dict(img='train'),
-        # ref_img_sampler=None,
-        # load_as_video=True,
+        data_prefix=dict(img_path='train'),
+        ref_img_sampler=None,
+        load_as_video=True,
         test_mode=True,
         pipeline=test_pipeline))
 test_dataloader = val_dataloader

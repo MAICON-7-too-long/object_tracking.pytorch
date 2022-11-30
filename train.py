@@ -65,7 +65,7 @@ def parse_args():
 
 def main():
     OTP_DIR = os.environ.get("OTP_DIR", "/workspace/Final_Submission")
-    DATA_DIR = os.environ.get("DATA_DIR", "/workspace/data/01_data")
+    # DATA_DIR = os.environ.get("DATA_DIR", "/workspace/data/01_data")
     RANDOM_SEED = os.environ.get("RANDOM_SEED", 777)
 
     args = parse_args()
@@ -80,7 +80,7 @@ def main():
     if args.cfg_options is not None:
         cfg.merge_from_dict(args.cfg_options)
 
-    cfg.data_root = DATA_DIR
+    # cfg.data_root = DATA_DIR
     cfg.randomness = dict(seed=RANDOM_SEED, deterministic=True)
     cfg.gpu_ids = range(1)
 
@@ -140,33 +140,33 @@ def main():
                                 osp.splitext(osp.basename(args.config))[0])
 
     # enable automatic-mixed-precision training
-    # if args.amp is True:
-    optim_wrapper = cfg.optim_wrapper.type
-    if optim_wrapper == 'AmpOptimWrapper':
-        print_log(
-            'AMP training is already enabled in your config.',
-            logger='current',
-            level=logging.WARNING)
-    else:
-        assert optim_wrapper == 'OptimWrapper', (
-            '`--amp` is only supported when the optimizer wrapper type is '
-            f'`OptimWrapper` but got {optim_wrapper}.')
-        cfg.optim_wrapper.type = 'AmpOptimWrapper'
-        cfg.optim_wrapper.loss_scale = 'dynamic'
+    if args.amp is True:
+        optim_wrapper = cfg.optim_wrapper.type
+        if optim_wrapper == 'AmpOptimWrapper':
+            print_log(
+                'AMP training is already enabled in your config.',
+                logger='current',
+                level=logging.WARNING)
+        else:
+            assert optim_wrapper == 'OptimWrapper', (
+                '`--amp` is only supported when the optimizer wrapper type is '
+                f'`OptimWrapper` but got {optim_wrapper}.')
+            cfg.optim_wrapper.type = 'AmpOptimWrapper'
+            cfg.optim_wrapper.loss_scale = 'dynamic'
 
     # enable automatically scaling LR
-    # if args.auto_scale_lr:
-    if 'auto_scale_lr' in cfg and \
-            'enable' in cfg.auto_scale_lr and \
-            'base_batch_size' in cfg.auto_scale_lr:
-        cfg.auto_scale_lr.enable = True
-    else:
-        raise RuntimeError('Can not find "auto_scale_lr" or '
-                            '"auto_scale_lr.enable" or '
-                            '"auto_scale_lr.base_batch_size" in your'
-                            ' configuration file.')
-    # cfg.resume = args.resume
-    cfg.resume = True
+    if args.auto_scale_lr:
+        if 'auto_scale_lr' in cfg and \
+                'enable' in cfg.auto_scale_lr and \
+                'base_batch_size' in cfg.auto_scale_lr:
+            cfg.auto_scale_lr.enable = True
+        else:
+            raise RuntimeError('Can not find "auto_scale_lr" or '
+                                '"auto_scale_lr.enable" or '
+                                '"auto_scale_lr.base_batch_size" in your'
+                                ' configuration file.')
+    cfg.resume = args.resume
+    # cfg.resume = True
 
     print(f'Config:\n{cfg.pretty_text}')
 
