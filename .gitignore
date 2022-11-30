@@ -134,3 +134,4 @@ checkpoints/
 debug/
 infer_res/
 exps/
+work_dir/
